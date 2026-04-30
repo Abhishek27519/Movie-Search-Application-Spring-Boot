@@ -40,4 +40,6 @@ Search for specific movies using query parameters.
 1. Clone the repository.
 2. Run the application via IntelliJ IDEA or using `./mvnw spring-boot:run`.
 3. Access the endpoints at `http://localhost:8080/api/movies`.
-4. Also, access the endpoints with filter - 'http://localhost:8080/api/movies?Title=Time&Year=1995' & 'http://localhost:8080/api/movies?Title=Maze&page=2'.
+4. Also, access the endpoints with filters:
+    - `http://localhost:8080/api/movies?Title=Time&Year=1995`
+    - `http://localhost:8080/api/movies?Title=Maze&page=2`
