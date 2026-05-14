@@ -1,45 +1,82 @@
-# Movie Search Service Application
+Movie Search Service Application (Secured)
+A high-performance, stateless Spring Boot application that aggregates movie data from external APIs using concurrent processing, secured via JWT (JSON Web Tokens) and persistent H2 Database authentication.
 
-A high-performance Spring Boot application that aggregates movie data from external APIs using concurrent processing.
+📝 Overview
+This service demonstrates an enterprise-grade implementation of asynchronous data retrieval combined with a robust security layer. It fetches, filters, and consolidates movie records from the HackerRank Movie Database API while ensuring that all data access is strictly governed by Spring Security 6.x.
 
-## Overview
-This project is a RESTful service designed to fetch, filter, and consolidate movie records from the HackerRank Movie Database API. It demonstrates a clean implementation of asynchronous data retrieval in a Java environment.
+🚀 Key Features
+Concurrent Data Aggregation: Leverages Java's CompletableFuture and a custom-configured RestTemplate to fetch multiple pages of data simultaneously, significantly reducing I/O latency.
 
-## Key Features
-- **Concurrent Data Retrieval**: Leverages Java's `CompletableFuture` and `RestTemplate` to fetch multiple pages of data simultaneously, significantly reducing total response time.
-- **Flexible Search API**: Implements a dual-method controller strategy that handles both bulk data aggregation and specific filtered queries (by Title, Year, and Page).
-- **Clean Architecture**: Follows a modular design with a clear separation of concerns between the configuration, service (logic), and controller (interface) layers.
+Stateless JWT Authentication: Implements a custom security filter chain to validate identity from Bearer tokens, ensuring the application remains scalable and stateless.
 
-## Technical Stack
-- **Framework**: Spring Boot
-- **Build Tool**: Maven
-- **Language**: Java
-- **HTTP Client**: RestTemplate
-- **Concurrency**: CompletableFuture
+Persistent Identity Management: Utilizes an in-memory H2 Database for storing user credentials, allowing for verifiable authentication logic during the application lifecycle.
 
-## API Endpoints
+Method-Level Security: Employs @PreAuthorize("isAuthenticated()") annotations to guard REST endpoints at the controller level.
 
-### 1. Fetch All Records
-Retrieves every movie record available across all pages of the external API using multithreading.
-- **URL**: `GET /api/movies`
+Automated Data Initialization: Features a DataInitializer component that bootstraps a default administrative user into H2 upon startup for immediate testing.
 
-### 2. Filtered Search
-Search for specific movies using query parameters.
-- **URL**: `GET /api/movies?Title={name}&Year={year}&page={number}`
-- **Parameters**:
-    - `Title` (Required for filtered search)
-    - `Year` (Optional)
-    - `page` (Optional)
+🛠 Technical Stack
+Framework: Spring Boot 3.x
 
-## Project Components
-- **MovieSearchApi**: REST Controller managing endpoint routing.
-- **MovieFetchEngine**: Service layer containing the multithreading logic and API integration.
-- **AppConfig**: Configuration class for Spring Bean management (RestTemplate).
+Security: Spring Security 6.x & io.jsonwebtoken (jjwt)
 
-## Setup
-1. Clone the repository.
-2. Run the application via IntelliJ IDEA or using `./mvnw spring-boot:run`.
-3. Access the endpoints at `http://localhost:8080/api/movies`.
-4. Also, access the endpoints with filters:
-    - `http://localhost:8080/api/movies?Title=Time&Year=1995`
-    - `http://localhost:8080/api/movies?Title=Maze&page=2`
+Database: H2 (In-memory)
+
+Language: Java 17+
+
+Concurrency: CompletableFuture API
+
+Build Tool: Maven
+
+🛣 API Endpoints
+1. Authentication (Public)
+   URL: POST /auth/login
+
+Purpose: Validates credentials and returns a signed JWT.
+Body:
+
+JSON
+{
+"username": "admin",
+"password": "password123"
+}
+2. Secured Movie Search (Requires JWT)
+   URL: GET /api/movies
+
+Parameters: Title (Required), Year (Optional), page (Optional).
+
+Header: Authorization: Bearer <JWT_TOKEN>
+
+🧪 Comprehensive Testing Process
+I. Postman (Standard API Testing)
+Login: Send a POST to /auth/login. Copy the jwt string from the response.
+
+Authorize: Open a GET request to /api/movies?Title=Maze.
+
+Setup Header: In the Authorization tab, select Bearer Token and paste your JWT.
+
+Execute: Hit Send to receive the concurrent search results.
+
+II. PowerShell (Dev-Ops / Terminal Verification)
+Utilize native PowerShell commands to handle JSON object mapping and bypass quote-escaping issues:
+
+PowerShell
+# 1. Generate Token
+$postParams = @{username='admin'; password='password123'} | ConvertTo-Json
+$loginResponse = Invoke-RestMethod -Uri "http://localhost:8080/auth/login" -Method Post -Body $postParams -ContentType "application/json"
+
+# 2. Access Secured Resource
+Invoke-RestMethod -Uri "http://localhost:8080/api/movies?Title=Harry" -Method Get -Headers @{Authorization=("Bearer " + $loginResponse.jwt)}
+III. Chrome Browser (Security & DB Verification)
+H2 Console: Access http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:moviedb) to verify the USERS table.
+
+Negative Testing: Visit http://localhost:8080/api/movies directly in Chrome. An HTTP 403 Forbidden error confirms the security filter is successfully protecting the resource.
+
+⚙️ Setup & Installation
+Clone: git clone <repo-url>
+
+Config: Ensure src/main/resources/application.properties includes spring.h2.console.enabled=true.
+
+Run: Launch via IntelliJ or ./mvnw spring-boot:run.
+
+Initial Credentials: Username: admin | Password: password123.
