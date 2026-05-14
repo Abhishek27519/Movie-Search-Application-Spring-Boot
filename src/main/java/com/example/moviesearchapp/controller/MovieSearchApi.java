@@ -1,5 +1,6 @@
-package com.example.moviesearchapp;
+package com.example.moviesearchapp.controller;
 
+import com.example.moviesearchapp.service.MovieFetchEngine;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 

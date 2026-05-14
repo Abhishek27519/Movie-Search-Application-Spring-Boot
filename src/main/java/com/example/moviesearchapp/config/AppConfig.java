@@ -1,4 +1,4 @@
-package com.example.moviesearchapp;
+package com.example.moviesearchapp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
