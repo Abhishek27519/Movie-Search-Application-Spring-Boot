@@ -28,16 +28,20 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
+        http
+                .csrf(csrf -> csrf.disable()) // Requirement #6: Disable CSRF for stateless APIs
+                .cors(cors -> cors.disable()) // Ensure CORS doesn't block local testing
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/h2-console/**").permitAll() // Public endpoints
-                        .anyRequest().authenticated() // All others require a token
+                        // Use requestMatchers with a leading slash and ensure they are at the top
+                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .anyRequest().authenticated()
                 )
                 // Requirement #6: Disable built-in login/session management
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .headers(headers -> headers.frameOptions(frame -> frame.disable())); // Required for H2 Console
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
-        // Requirement #4: Plug in our JWT Filter before the standard Auth filter
+        // Requirement #4: Plug in our JWT Filter
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
